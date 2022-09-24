@@ -1,5 +1,4 @@
 from typing import Any
-
 import dev_requests
 import config
 import messages
@@ -9,17 +8,13 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 
 def is_broadcast_live() -> dict[str, Any]:
     response = dev_requests.GET_request()
-    channel_list = response["data"]  # List
+    channel_list = response["data"]
     for channel in channel_list:
         if channel["broadcaster_login"] == config.twitchChannel:
             streamer = channel
             break
 
-
     return {"title_broadcast": streamer["title"], "game_name": streamer["game_name"], "is_live": streamer["is_live"]}
-
-
-#    return [streamer["is_live"], streamer['game_name'], streamer["title"]]
 
 
 def writeMessage(user_id, message, vk_session):
@@ -42,7 +37,6 @@ def checkLiveStream() -> str:
 
 def main():
     vk_session = vk_api.VkApi(token=config.authVKToken)
-    session_api = vk_session.get_api()
     longPoll = VkLongPoll(vk_session)
 
     for event in longPoll.listen():

@@ -128,5 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-### Pycharm
+# Private config file
+config.py
+
+# Pycharm config
 .idea/
