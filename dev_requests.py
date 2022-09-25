@@ -13,7 +13,7 @@ def POST_request():
     return response
 
 
-def get_access_token() -> str:
+def get_Twitch_access_token() -> str:
     response = POST_request()
     jwt_access_token = json.loads(response.content)
     try:
@@ -26,7 +26,7 @@ def get_access_token() -> str:
 
 def GET_request():
     url = config.twitch_search_channels_url + config.twitch_channel_name
-    access_token = get_access_token()
+    access_token = get_Twitch_access_token()
     headers = {
         "Client-ID": config.client_id,
         "Authorization": "Bearer %s" % access_token

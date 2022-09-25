@@ -28,7 +28,7 @@ def checkLiveStream() -> str:
     if broadcast_live["is_live"]:
         streamer_message = "{}\n" \
                            "Текущий стрим: {}\n" \
-                           "Категория: {}\n"\
+                           "Категория: {}\n" \
             .format(messages.streamerNowOnline, broadcast_live["title_broadcast"], broadcast_live["game_name"])
     else:
         streamer_message += messages.streamerNowOffline
@@ -44,14 +44,15 @@ def main():
         if event.type == VkEventType.MESSAGE_NEW:
             if event.to_me:
                 if event.text.lower() == "привет":
-                    writeMessage(event.user_id, messages.greeting_message, vk_session)
+                    stream_message = messages.greeting_message
                 elif event.text.lower() == "стрим":
                     stream_message = checkLiveStream()
-                    writeMessage(event.user_id, stream_message, vk_session)
                 elif event.text.lower() == "график":
-                    writeMessage(event.user_id, messages.stream_schedule, vk_session)
+                    stream_message = messages.stream_schedule
                 else:
-                    writeMessage(event.user_id, messages.all_commands_message, vk_session)
+                    stream_message = messages.all_commands_message
+
+                writeMessage(user_id=event.user_id, message=stream_message, vk_session=vk_session)
 
 
 if __name__ == "__main__":
