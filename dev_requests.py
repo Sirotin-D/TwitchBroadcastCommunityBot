@@ -1,11 +1,10 @@
 import requests
 import config
 import json
-import string
 
 
 def POST_request():
-    url = config.authTwitchURL
+    url = config.auth_Twitch_URL
     data = {"client_id": config.client_id,
             "client_secret": config.secret_id,
             "grant_type": config.twitch_grant_type
@@ -14,7 +13,7 @@ def POST_request():
     return response
 
 
-def get_access_token() -> string:
+def get_access_token() -> str:
     response = POST_request()
     jwt_access_token = json.loads(response.content)
     try:
@@ -26,7 +25,7 @@ def get_access_token() -> string:
 
 
 def GET_request():
-    url = config.twitch_search_channels_url + config.twitchChannel
+    url = config.twitch_search_channels_url + config.twitch_channel_name
     access_token = get_access_token()
     headers = {
         "Client-ID": config.client_id,

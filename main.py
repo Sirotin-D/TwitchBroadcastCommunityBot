@@ -9,8 +9,9 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 def is_broadcast_live() -> dict[str, Any]:
     response = dev_requests.GET_request()
     channel_list = response["data"]
+    streamer = dict()
     for channel in channel_list:
-        if channel["broadcaster_login"] == config.twitchChannel:
+        if channel["broadcaster_login"] == config.twitch_channel_name:
             streamer = channel
             break
 
@@ -25,18 +26,18 @@ def checkLiveStream() -> str:
     broadcast_live = is_broadcast_live()
     streamer_message = messages.stream_status
     if broadcast_live["is_live"]:
-        streamer_message += messages.streamerNowOnline
+        streamer_message = "{}\n" \
+                           "Текущий стрим: {}\n" \
+                           "Категория: {}\n"\
+            .format(messages.streamerNowOnline, broadcast_live["title_broadcast"], broadcast_live["game_name"])
     else:
         streamer_message += messages.streamerNowOffline
-
-    streamer_message += "\n Последний стрим: " + broadcast_live["title_broadcast"] + \
-                        "\n Категория: " + broadcast_live["game_name"]
 
     return streamer_message
 
 
 def main():
-    vk_session = vk_api.VkApi(token=config.authVKToken)
+    vk_session = vk_api.VkApi(token=config.auth_VK_token)
     longPoll = VkLongPoll(vk_session)
 
     for event in longPoll.listen():
