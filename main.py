@@ -1,12 +1,12 @@
-from typing import Any
 import dev_requests
 import config
 import messages
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
+from Broadcast import Broadcast
 
 
-def is_broadcast_live() -> dict[str, Any]:
+def is_broadcast_live() -> Broadcast:
     response = dev_requests.GET_request()
     channel_list = response["data"]
     streamer = dict()
@@ -15,7 +15,8 @@ def is_broadcast_live() -> dict[str, Any]:
             streamer = channel
             break
 
-    return {"title_broadcast": streamer["title"], "game_name": streamer["game_name"], "is_live": streamer["is_live"]}
+    current_channel = Broadcast(is_live=streamer["is_live"], title=streamer["title"], category=streamer["game_name"])
+    return current_channel
 
 
 def writeMessage(user_id, message, vk_session):
@@ -25,11 +26,13 @@ def writeMessage(user_id, message, vk_session):
 def checkLiveStream() -> str:
     broadcast_live = is_broadcast_live()
     streamer_message = messages.stream_status
-    if broadcast_live["is_live"]:
+    if broadcast_live.is_broadcast_live():
         streamer_message = "{}\n" \
                            "Текущий стрим: {}\n" \
                            "Категория: {}\n" \
-            .format(messages.streamerNowOnline, broadcast_live["title_broadcast"], broadcast_live["game_name"])
+            .format(messages.streamerNowOnline,
+                    broadcast_live.get_current_title_broadcast(),
+                    broadcast_live.get_current_category_broadcast())
     else:
         streamer_message += messages.streamerNowOffline
 
