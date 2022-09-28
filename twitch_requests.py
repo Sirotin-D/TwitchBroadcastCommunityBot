@@ -4,7 +4,7 @@ import config
 
 
 def is_broadcast_live() -> Broadcast:
-    response = dev_requests.GET_request()
+    response = dev_requests.get_request()
     channel_list = response["data"]
     streamer = dict()
     for channel in channel_list:

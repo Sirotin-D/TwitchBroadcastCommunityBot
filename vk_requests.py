@@ -1,4 +1,5 @@
 import requests
+import config
 
 
 def vk_get_request():
@@ -8,8 +9,8 @@ def vk_get_request():
     response = requests.get(url=url)
     return response.json()["response"]
 
+
 def get_vk_user_id():
     vk_response = vk_get_request()
     members_id_list = vk_response["items"]
     return members_id_list
-

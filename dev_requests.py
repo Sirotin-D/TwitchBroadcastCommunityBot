@@ -2,7 +2,7 @@ import requests
 import config
 
 
-def POST_request():
+def post_request():
     url = config.auth_Twitch_URL
     data = {"client_id": config.client_id,
             "client_secret": config.secret_id,
@@ -13,7 +13,7 @@ def POST_request():
 
 
 def get_Twitch_access_token() -> str:
-    response = POST_request()
+    response = post_request()
     jwt_access_token = response.json()
     try:
         access_token = jwt_access_token["access_token"]
@@ -23,7 +23,7 @@ def get_Twitch_access_token() -> str:
     return access_token
 
 
-def GET_request():
+def get_request():
     url = config.twitch_search_channels_url + config.twitch_channel_name
     access_token = get_Twitch_access_token()
     headers = {
