@@ -18,7 +18,7 @@ def get_Twitch_access_token() -> str:
     return access_token
 
 
-def is_broadcast_live() -> Broadcast:
+def get_current_broadcast_status() -> Broadcast:
     url = config.twitch_search_channels_url + config.twitch_channel_name
     access_token = get_Twitch_access_token()
     headers = {

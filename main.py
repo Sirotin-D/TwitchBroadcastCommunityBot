@@ -10,7 +10,7 @@ def writeMessage(user_id, message, vk_session):
 
 
 def checkLiveStream() -> str:
-    broadcast_live = twitch_requests.is_broadcast_live()
+    broadcast_live = twitch_requests.get_current_broadcast_status()
     streamer_message = messages.stream_status
     if broadcast_live.is_broadcast_live():
         streamer_message = "{}\n" \
@@ -25,11 +25,8 @@ def checkLiveStream() -> str:
     return streamer_message
 
 
-def main():
-    vk_session = vk_api.VkApi(token=config.auth_VK_token)
-    longPoll = VkLongPoll(vk_session)
-
-    for event in longPoll.listen():
+def query_answer_mode(long_poll, vk_session):
+    for event in long_poll.listen():
         if event.type == VkEventType.MESSAGE_NEW:
             if event.to_me:
                 if event.text.lower() == "привет":
@@ -42,6 +39,12 @@ def main():
                     stream_message = messages.all_commands_message
 
                 writeMessage(user_id=event.user_id, message=stream_message, vk_session=vk_session)
+
+
+def main():
+    vk_session = vk_api.VkApi(token=config.auth_VK_token)
+    long_poll = VkLongPoll(vk_session)
+    query_answer_mode(long_poll=long_poll, vk_session=vk_session)
 
 
 if __name__ == "__main__":
