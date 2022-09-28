@@ -4,7 +4,7 @@ import config
 
 def vk_get_request():
     url = "https://api.vk.com/method/groups.getMembers?v={}&&access_token={}&group_id={}".format(config.vk_api_v,
-                                                                                                 config.auth_VK_token,
+                                                                                                 config.auth_vk_token,
                                                                                                  config.vk_test_group_id)
     response = requests.get(url=url)
     return response.json()["response"]

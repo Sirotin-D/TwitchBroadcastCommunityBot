@@ -4,7 +4,7 @@ import config
 
 
 def get_Twitch_access_token() -> str:
-    url = config.auth_Twitch_URL
+    url = config.auth_twitch_url
     data = {"client_id": config.client_id,
             "client_secret": config.secret_id,
             "grant_type": config.twitch_grant_type

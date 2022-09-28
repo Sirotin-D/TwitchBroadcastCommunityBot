@@ -42,7 +42,7 @@ def query_answer_mode(long_poll, vk_session):
 
 
 def main():
-    vk_session = vk_api.VkApi(token=config.auth_VK_token)
+    vk_session = vk_api.VkApi(token=config.auth_vk_token)
     long_poll = VkLongPoll(vk_session)
     query_answer_mode(long_poll=long_poll, vk_session=vk_session)
 
