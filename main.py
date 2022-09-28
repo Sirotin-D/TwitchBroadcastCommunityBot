@@ -8,10 +8,6 @@ import vk_requests
 is_notified = False
 
 
-def writeMessage(user_id, message, vk_session):
-    vk_session.method(config.vk_messages_send_method, {"user_id": user_id, "message": message, "random_id": 0})
-
-
 def checkLiveStream() -> str:
     broadcast_live = twitch_requests.get_current_broadcast_status()
     streamer_message = messages.stream_status
@@ -28,6 +24,19 @@ def checkLiveStream() -> str:
     return streamer_message
 
 
+def vk_write_message(user_id, message, vk_session):
+    vk_session.method(config.vk_messages_send_method, {"user_id": user_id, "message": message, "random_id": 0})
+
+
+def vk_get_group_members_id_list() -> list:
+    return vk_requests.vk_get_group_members_id_list(group_id=config.vk_test_group_id)
+
+
+def vk_make_news_letter(user_id_list, message, vk_session):
+    for user_id in user_id_list:
+        vk_write_message(user_id=user_id, message=message, vk_session=vk_session)
+
+
 def query_answer_mode(long_poll, vk_session):
     for event in long_poll.listen():
         if event.type == VkEventType.MESSAGE_NEW:
@@ -41,22 +50,12 @@ def query_answer_mode(long_poll, vk_session):
                 else:
                     stream_message = messages.all_commands_message
 
-                writeMessage(user_id=event.user_id, message=stream_message, vk_session=vk_session)
-
-
-def vk_get_group_members_id_list() -> list:
-    return vk_requests.vk_get_group_members_id_list(group_id=config.vk_test_group_id)
-
-
-def vk_make_news_letter(user_id_list, message, vk_session):
-    for user_id in user_id_list:
-        writeMessage(user_id=user_id, message=message, vk_session=vk_session)
+                vk_write_message(user_id=event.user_id, message=stream_message, vk_session=vk_session)
 
 
 def broadcast_news_letter_mode(vk_session):
     global is_notified
     while True:
-        print("Current status notified: {notified}".format(notified=is_notified))
         broadcast_live = twitch_requests.get_current_broadcast_status()
         if broadcast_live.is_broadcast_live() and not is_notified:
             is_notified = True
