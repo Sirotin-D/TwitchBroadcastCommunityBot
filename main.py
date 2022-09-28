@@ -1,12 +1,15 @@
+import time
 import config
 import messages
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 import twitch_requests
+import vk_requests
+is_notified = False
 
 
 def writeMessage(user_id, message, vk_session):
-    vk_session.method("messages.send", {"user_id": user_id, "message": message, "random_id": 0})
+    vk_session.method(config.vk_messages_send_method, {"user_id": user_id, "message": message, "random_id": 0})
 
 
 def checkLiveStream() -> str:
@@ -41,15 +44,42 @@ def query_answer_mode(long_poll, vk_session):
                 writeMessage(user_id=event.user_id, message=stream_message, vk_session=vk_session)
 
 
+def vk_get_group_members_id_list() -> list:
+    return vk_requests.vk_get_group_members_id_list(group_id=config.vk_test_group_id)
+
+
 def vk_make_news_letter(user_id_list, message, vk_session):
     for user_id in user_id_list:
         writeMessage(user_id=user_id, message=message, vk_session=vk_session)
 
 
+def broadcast_news_letter_mode(vk_session):
+    global is_notified
+    while True:
+        print("Current status notified: {notified}".format(notified=is_notified))
+        broadcast_live = twitch_requests.get_current_broadcast_status()
+        if broadcast_live.is_broadcast_live() and not is_notified:
+            is_notified = True
+            members_id_list = vk_get_group_members_id_list()
+            streamer_message = "{broadcast_status}\n" \
+                               "Текущий стрим: {broadcast_title}\n" \
+                               "Категория: {broadcast_category}\n" \
+                .format(broadcast_status=messages.streamerNowOnline,
+                        broadcast_title=broadcast_live.get_current_title_broadcast(),
+                        broadcast_category=broadcast_live.get_current_category_broadcast())
+
+            vk_make_news_letter(members_id_list, streamer_message, vk_session=vk_session)
+        elif not broadcast_live.is_broadcast_live():
+            is_notified = False
+
+        time.sleep(config.twitch_waiting_request_seconds)
+
+
 def main():
     vk_session = vk_api.VkApi(token=config.auth_vk_token)
     long_poll = VkLongPoll(vk_session)
-    query_answer_mode(long_poll=long_poll, vk_session=vk_session)
+    # query_answer_mode(long_poll=long_poll, vk_session=vk_session)
+    broadcast_news_letter_mode(vk_session=vk_session)
 
 
 if __name__ == "__main__":
