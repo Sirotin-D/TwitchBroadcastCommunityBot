@@ -41,6 +41,11 @@ def query_answer_mode(long_poll, vk_session):
                 writeMessage(user_id=event.user_id, message=stream_message, vk_session=vk_session)
 
 
+def vk_make_news_letter(user_id_list, message, vk_session):
+    for user_id in user_id_list:
+        writeMessage(user_id=user_id, message=message, vk_session=vk_session)
+
+
 def main():
     vk_session = vk_api.VkApi(token=config.auth_vk_token)
     long_poll = VkLongPoll(vk_session)
