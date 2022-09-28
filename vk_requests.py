@@ -1,16 +1,21 @@
-import requests
+import dev_requests
 import config
 
 
-def vk_get_request() -> dict:
-    url = "https://api.vk.com/method/groups.getMembers?v={}&&access_token={}&group_id={}".format(config.vk_api_v,
-                                                                                                 config.auth_vk_token,
-                                                                                                 config.vk_test_group_id)
-    response = requests.get(url=url)
-    return response.json()
+def vk_post_request(url, method, body) -> dict:
+    correct_url = "{}/{}".format(url, method)
+    response = dev_requests.post_request(url=correct_url, body=body)
+    return response
 
 
-def get_vk_user_id() -> list:
-    vk_response = vk_get_request()
-    members_id_list = vk_response["items"]
+def vk_get_group_members_id_list(group_id) -> list:
+    url = config.vk_api_request_url
+    method = config.vk_get_group_members_method
+    body = {
+        "v": config.vk_api_v,
+        "access_token": config.auth_vk_token,
+        "group_id": group_id
+    }
+    vk_response = vk_post_request(url=url, method=method, body=body)
+    members_id_list = vk_response["response"]["items"]
     return members_id_list
