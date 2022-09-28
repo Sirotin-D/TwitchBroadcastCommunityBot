@@ -2,15 +2,15 @@ import requests
 import config
 
 
-def vk_get_request():
+def vk_get_request() -> dict:
     url = "https://api.vk.com/method/groups.getMembers?v={}&&access_token={}&group_id={}".format(config.vk_api_v,
                                                                                                  config.auth_vk_token,
                                                                                                  config.vk_test_group_id)
     response = requests.get(url=url)
-    return response.json()["response"]
+    return response.json()
 
 
-def get_vk_user_id():
+def get_vk_user_id() -> list:
     vk_response = vk_get_request()
     members_id_list = vk_response["items"]
     return members_id_list
