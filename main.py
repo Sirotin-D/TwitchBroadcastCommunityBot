@@ -1,22 +1,8 @@
-import dev_requests
 import config
 import messages
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
-from Broadcast import Broadcast
-
-
-def is_broadcast_live() -> Broadcast:
-    response = dev_requests.GET_request()
-    channel_list = response["data"]
-    streamer = dict()
-    for channel in channel_list:
-        if channel["broadcaster_login"] == config.twitch_channel_name:
-            streamer = channel
-            break
-
-    current_channel = Broadcast(is_live=streamer["is_live"], title=streamer["title"], category=streamer["game_name"])
-    return current_channel
+import twitch_requests
 
 
 def writeMessage(user_id, message, vk_session):
@@ -24,7 +10,7 @@ def writeMessage(user_id, message, vk_session):
 
 
 def checkLiveStream() -> str:
-    broadcast_live = is_broadcast_live()
+    broadcast_live = twitch_requests.is_broadcast_live()
     streamer_message = messages.stream_status
     if broadcast_live.is_broadcast_live():
         streamer_message = "{}\n" \
