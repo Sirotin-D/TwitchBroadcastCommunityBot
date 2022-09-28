@@ -1,6 +1,5 @@
 import requests
 import config
-import json
 
 
 def POST_request():
@@ -15,10 +14,10 @@ def POST_request():
 
 def get_Twitch_access_token() -> str:
     response = POST_request()
-    jwt_access_token = json.loads(response.content)
+    jwt_access_token = response.json()
     try:
         access_token = jwt_access_token["access_token"]
-    except:
+    except Exception:
         access_token = ""
 
     return access_token
