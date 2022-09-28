@@ -5,7 +5,6 @@ import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 import twitch_requests
 import vk_requests
-is_notified = False
 
 
 def checkLiveStream() -> str:
@@ -54,7 +53,7 @@ def query_answer_mode(long_poll, vk_session):
 
 
 def broadcast_news_letter_mode(vk_session):
-    global is_notified
+    is_notified = False
     while True:
         broadcast_live = twitch_requests.get_current_broadcast_status()
         if broadcast_live.is_broadcast_live() and not is_notified:
