@@ -5,6 +5,8 @@ import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 import twitch_requests
 import vk_requests
+from threading import Thread
+vk_session = vk_api.VkApi(token=config.auth_vk_token)
 
 
 def checkLiveStream() -> str:
@@ -36,7 +38,8 @@ def vk_make_news_letter(user_id_list, message, vk_session):
         vk_write_message(user_id=user_id, message=message, vk_session=vk_session)
 
 
-def query_answer_mode(long_poll, vk_session):
+def query_answer_mode():
+    long_poll = VkLongPoll(vk_session)
     for event in long_poll.listen():
         if event.type == VkEventType.MESSAGE_NEW:
             if event.to_me:
@@ -52,7 +55,7 @@ def query_answer_mode(long_poll, vk_session):
                 vk_write_message(user_id=event.user_id, message=stream_message, vk_session=vk_session)
 
 
-def broadcast_news_letter_mode(vk_session):
+def broadcast_news_letter_mode():
     is_notified = False
     while True:
         broadcast_live = twitch_requests.get_current_broadcast_status()
@@ -74,10 +77,10 @@ def broadcast_news_letter_mode(vk_session):
 
 
 def main():
-    vk_session = vk_api.VkApi(token=config.auth_vk_token)
-    long_poll = VkLongPoll(vk_session)
-    # query_answer_mode(long_poll=long_poll, vk_session=vk_session)
-    broadcast_news_letter_mode(vk_session=vk_session)
+    thread_1 = Thread(target=broadcast_news_letter_mode, args=())
+    thread_2 = Thread(target=query_answer_mode, args=())
+    thread_1.start()
+    thread_2.start()
 
 
 if __name__ == "__main__":
