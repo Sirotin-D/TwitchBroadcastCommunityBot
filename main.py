@@ -13,12 +13,12 @@ def checkLiveStream() -> str:
     broadcast_live = twitch_requests.get_current_broadcast_status()
     streamer_message = messages.stream_status
     if broadcast_live.is_broadcast_live():
-        streamer_message = "{}\n" \
-                           "Текущий стрим: {}\n" \
-                           "Категория: {}\n" \
-            .format(messages.streamerNowOnline,
-                    broadcast_live.get_current_title_broadcast(),
-                    broadcast_live.get_current_category_broadcast())
+        streamer_message = "{broadcast_status}\n" \
+                           "Текущий стрим: {broadcast_title}\n" \
+                           "Категория: {broadcast_category}\n" \
+            .format(broadcast_status=messages.streamerNowOnline,
+                    broadcast_title=broadcast_live.get_current_title_broadcast(),
+                    broadcast_category=broadcast_live.get_current_category_broadcast())
     else:
         streamer_message += messages.streamerNowOffline
 

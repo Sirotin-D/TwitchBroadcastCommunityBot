@@ -3,7 +3,8 @@ import config
 
 
 def vk_post_request(url, method, body) -> dict:
-    correct_url = "{}/{}".format(url, method)
+    correct_url = "{vk_api_url}/{vk_api_method}".format(vk_api_url=url,
+                                                        vk_api_method=method)
     response = dev_requests.post_request(url=correct_url, body=body)
     return response
 
