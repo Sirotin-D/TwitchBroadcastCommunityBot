@@ -25,17 +25,20 @@ def checkLiveStream() -> str:
     return streamer_message
 
 
-def vk_write_message(user_id, message, vk_session):
-    vk_session.method(config.vk_messages_send_method, {"user_id": user_id, "message": message, "random_id": 0})
+def vk_write_message(user_id, message):
+    try:
+        vk_session.method(config.vk_messages_send_method, {"user_id": user_id, "message": message, "random_id": 0})
+    except Exception:
+        pass
 
 
 def vk_get_group_members_id_list() -> list:
     return vk_requests.vk_get_group_members_id_list(group_id=config.vk_test_group_id)
 
 
-def vk_make_news_letter(user_id_list, message, vk_session):
+def vk_make_news_letter(user_id_list, message):
     for user_id in user_id_list:
-        vk_write_message(user_id=user_id, message=message, vk_session=vk_session)
+        vk_write_message(user_id=user_id, message=message)
 
 
 def query_answer_mode():
@@ -52,7 +55,7 @@ def query_answer_mode():
                 else:
                     stream_message = messages.all_commands_message
 
-                vk_write_message(user_id=event.user_id, message=stream_message, vk_session=vk_session)
+                vk_write_message(user_id=event.user_id, message=stream_message)
 
 
 def broadcast_news_letter_mode():
@@ -69,7 +72,7 @@ def broadcast_news_letter_mode():
                         broadcast_title=broadcast_live.get_current_title_broadcast(),
                         broadcast_category=broadcast_live.get_current_category_broadcast())
 
-            vk_make_news_letter(members_id_list, streamer_message, vk_session=vk_session)
+            vk_make_news_letter(members_id_list, streamer_message)
         elif not broadcast_live.is_broadcast_live():
             is_notified = False
 
