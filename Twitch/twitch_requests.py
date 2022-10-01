@@ -10,7 +10,10 @@ def get_Twitch_access_token() -> str:
         "client_secret": config.secret_id,
         "grant_type": config.twitch_grant_type
     }
+
     response: dict = RequestService.post_request(url=url, body=body)
+
+    access_token: str
     try:
         access_token: str = response["access_token"]
     except Exception:
@@ -26,8 +29,11 @@ def get_current_broadcast_status() -> Broadcast:
         "Client-ID": config.client_id,
         "Authorization": "Bearer %s" % access_token
     }
+
     response: dict = RequestService.get_request(url=url, body=body)
+
     channel_list: list = response["data"]
+
     streamer = dict()
     for channel in channel_list:
         if channel["broadcaster_login"] == config.twitch_channel_name:

@@ -11,16 +11,21 @@ from threading import Thread
 vk_session = vk_api.VkApi(token=config.auth_vk_token)
 
 
+def get_newsletter_message_when_broadcast_live(title: str, category: str) -> str:
+    return "{broadcast_status}\n" \
+           "Текущий стрим: {broadcast_title}\n" \
+           "Категория: {broadcast_category}\n" \
+        .format(broadcast_status=messages.streamerNowOnline,
+                broadcast_title=title,
+                broadcast_category=category)
+
+
 def get_broadcast_status_message() -> str:
     broadcast_live: Broadcast = twitch_requests.get_current_broadcast_status()
     streamer_message: str = messages.stream_status
     if broadcast_live.is_live:
-        streamer_message = "{broadcast_status}\n" \
-                           "Текущий стрим: {broadcast_title}\n" \
-                           "Категория: {broadcast_category}\n" \
-            .format(broadcast_status=messages.streamerNowOnline,
-                    broadcast_title=broadcast_live.title,
-                    broadcast_category=broadcast_live.category)
+        streamer_message = get_newsletter_message_when_broadcast_live(title=broadcast_live.title,
+                                                                      category=broadcast_live.category)
     else:
         streamer_message += messages.streamerNowOffline
 
@@ -63,16 +68,14 @@ def query_answer_mode():
 def broadcast_news_letter_mode():
     is_notified: bool = False
     while True:
+        print(f"Current status notify: {is_notified}")
         broadcast_live: Broadcast = twitch_requests.get_current_broadcast_status()
+
         if broadcast_live.is_live and not is_notified:
             is_notified = True
             members_id_list: list = vk_get_group_members_id_list()
-            streamer_message: str = "{broadcast_status}\n" \
-                                    "Текущий стрим: {broadcast_title}\n" \
-                                    "Категория: {broadcast_category}\n" \
-                .format(broadcast_status=messages.streamerNowOnline,
-                        broadcast_title=broadcast_live.title,
-                        broadcast_category=broadcast_live.category)
+            streamer_message: str = get_newsletter_message_when_broadcast_live(title=broadcast_live.title,
+                                                                               category=broadcast_live.category)
 
             vk_make_news_letter(members_id_list, streamer_message)
         elif not broadcast_live.is_live:
