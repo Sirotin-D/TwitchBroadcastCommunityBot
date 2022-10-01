@@ -8,7 +8,7 @@ import messages
 
 
 def query_answer_mode(twitch: Twitch, vk: Vk):
-    vk.query_answer_mode(twitch_channel=twitch)
+    vk.query_answer_mode(twitch=twitch)
 
 
 def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):

@@ -43,7 +43,7 @@ class Vk:
         for user_id in user_id_list:
             self.__send_message(user_id=user_id, message=message)
 
-    def query_answer_mode(self, twitch_channel: Twitch):
+    def query_answer_mode(self, twitch: Twitch):
         long_poll = VkLongPoll(self.__vk_session)
         for event in long_poll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
@@ -51,7 +51,7 @@ class Vk:
                     if event.text.lower() == "привет":
                         answer_message = messages.greeting_message
                     elif event.text.lower() == "стрим":
-                        broadcast: Broadcast = twitch_channel.get_last_broadcast()
+                        broadcast: Broadcast = twitch.get_last_broadcast()
                         answer_message = messages.get_broadcast_status_message(broadcast=broadcast)
                     elif event.text.lower() == "график":
                         answer_message = messages.stream_schedule
