@@ -15,21 +15,15 @@ class Vk:
         self.__vk_session = vk_api.VkApi(token=auth_token)
         self.__group_id = group_id
 
-    def __vk_post_request(self, url: str, method: str, body: dict) -> dict:
-        correct_url: str = "{vk_api_url}/{vk_api_method}".format(vk_api_url=url,
-                                                                 vk_api_method=method)
-        response: dict = RequestService.post_request(url=correct_url, body=body)
-        return response
-
     def get_group_members_id_list(self) -> list:
-        url: str = config.vk_api_request_url
-        method: str = config.vk_get_group_members_method
         body: dict = {
             "v": config.vk_api_version,
             "access_token": self.__auth_token,
             "group_id": self.__group_id
         }
-        vk_response: dict = self.__vk_post_request(url=url, method=method, body=body)
+        url: str = "{vk_api_url}/{vk_api_method}".format(vk_api_url=config.vk_api_request_url,
+                                                         vk_api_method=config.vk_get_group_members_method)
+        vk_response: dict = RequestService.post_request(url=url, body=body)
         members_id_list: list = vk_response["response"]["items"]
         return members_id_list
 
