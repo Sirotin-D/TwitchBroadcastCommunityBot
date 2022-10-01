@@ -15,7 +15,7 @@ class Vk:
         self.__vk_session = vk_api.VkApi(token=auth_token)
         self.__group_id = group_id
 
-    def get_group_members_id_list(self) -> list:
+    def __get_group_members_id_list(self) -> list:
         body: dict = {
             "v": config.vk_api_version,
             "access_token": self.__auth_token,
@@ -38,7 +38,8 @@ class Vk:
         except Exception:
             pass
 
-    def send_newsletter(self, user_id_list: list, message: str):
+    def send_newsletter(self, message: str):
+        user_id_list: list = self.__get_group_members_id_list()
         for user_id in user_id_list:
             self.__send_message(user_id=user_id, message=message)
 

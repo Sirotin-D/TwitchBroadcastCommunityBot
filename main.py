@@ -19,10 +19,9 @@ def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):
 
         if broadcast.is_live and not is_notified:
             is_notified = True
-            members_id_list: list = vk.get_group_members_id_list()
             streamer_message: str = messages.get_newsletter_message_when_broadcast_live(title=broadcast.title,
                                                                                         category=broadcast.category)
-            vk.send_newsletter(members_id_list, streamer_message)
+            vk.send_newsletter(streamer_message)
 
         elif not broadcast.is_live:
             is_notified = False
