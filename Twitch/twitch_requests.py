@@ -4,10 +4,10 @@ import config
 
 
 def get_Twitch_access_token() -> str:
-    url: str = config.auth_twitch_url
+    url: str = config.twitch_api_auth_url
     body: dict = {
-        "client_id": config.client_id,
-        "client_secret": config.secret_id,
+        "client_id": config.twitch_client_id,
+        "client_secret": config.twitch_secret_id,
         "grant_type": config.twitch_grant_type
     }
 
@@ -23,10 +23,10 @@ def get_Twitch_access_token() -> str:
 
 
 def get_current_broadcast_status() -> Broadcast:
-    url: str = config.twitch_search_channels_url + config.twitch_channel_name
+    url: str = config.twitch_api_search_channels_url + config.twitch_channel_name
     access_token: str = get_Twitch_access_token()
     body: dict = {
-        "Client-ID": config.client_id,
+        "Client-ID": config.twitch_client_id,
         "Authorization": "Bearer %s" % access_token
     }
 

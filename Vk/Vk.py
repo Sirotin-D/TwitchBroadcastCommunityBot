@@ -23,15 +23,15 @@ class Vk:
         url: str = config.vk_api_request_url
         method: str = config.vk_get_group_members_method
         body: dict = {
-            "v": config.vk_api_v,
-            "access_token": config.auth_vk_token,
+            "v": config.vk_api_version,
+            "access_token": config.vk_test_access_token,
             "group_id": group_id
         }
         vk_response: dict = self.__vk_post_request(url=url, method=method, body=body)
         members_id_list: list = vk_response["response"]["items"]
         return members_id_list
 
-    def write_message(self, user_id: str, message: str):
+    def __send_message(self, user_id: str, message: str):
         try:
             self.__vk_session.method(config.vk_messages_send_method,
                                      {
@@ -42,9 +42,9 @@ class Vk:
         except Exception:
             pass
 
-    def make_news_letter(self, user_id_list: list, message: str):
+    def send_newsletter(self, user_id_list: list, message: str):
         for user_id in user_id_list:
-            self.write_message(user_id=user_id, message=message)
+            self.__send_message(user_id=user_id, message=message)
 
     def query_answer_mode(self, twitch_channel: Twitch):
         long_poll = VkLongPoll(self.__vk_session)
@@ -54,11 +54,11 @@ class Vk:
                     if event.text.lower() == "привет":
                         stream_message = messages.greeting_message
                     elif event.text.lower() == "стрим":
-                        broadcast: Broadcast = twitch_channel.get_current_broadcast_status()
+                        broadcast: Broadcast = twitch_channel.get_last_broadcast()
                         stream_message = messages.get_broadcast_status_message(broadcast=broadcast)
                     elif event.text.lower() == "график":
                         stream_message = messages.stream_schedule
                     else:
                         stream_message = messages.all_commands_message
 
-                    self.write_message(user_id=event.user_id, message=stream_message)
+                    self.__send_message(user_id=event.user_id, message=stream_message)

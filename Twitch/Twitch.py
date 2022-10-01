@@ -14,7 +14,7 @@ class Twitch:
         self.__twitch_channel_name = twitch_channel
 
     def __auth(self):
-        url: str = config.auth_twitch_url
+        url: str = config.twitch_api_auth_url
         body: dict = {
             "client_id": self.__client_id,
             "client_secret": self.__secret_id,
@@ -26,12 +26,12 @@ class Twitch:
         except Exception:
             print("Error getting access token")
 
-    def get_current_broadcast_status(self) -> Broadcast:
+    def get_last_broadcast(self) -> Broadcast:
         self.__auth()
 
-        url: str = config.twitch_search_channels_url + config.twitch_channel_name
+        url: str = config.twitch_api_search_channels_url + config.twitch_channel_name
         body: dict = {
-            "Client-ID": config.client_id,
+            "Client-ID": config.twitch_client_id,
             "Authorization": "Bearer %s" % self.__access_token
         }
         response: dict = RequestService.get_request(url=url, body=body)
