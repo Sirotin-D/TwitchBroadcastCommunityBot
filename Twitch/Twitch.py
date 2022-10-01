@@ -29,7 +29,7 @@ class Twitch:
     def get_last_broadcast(self) -> Broadcast:
         self.__auth()
 
-        url: str = config.twitch_api_search_channels_url + config.twitch_channel_name
+        url: str = config.twitch_api_search_channels_url + self.__twitch_channel_name
         body: dict = {
             "Client-ID": config.twitch_client_id,
             "Authorization": "Bearer %s" % self.__access_token
@@ -44,7 +44,7 @@ class Twitch:
 
         streamer = dict()
         for channel in channel_list:
-            if channel["broadcaster_login"] == config.twitch_channel_name:
+            if channel["broadcaster_login"] == self.__twitch_channel_name:
                 streamer = channel
                 break
 
