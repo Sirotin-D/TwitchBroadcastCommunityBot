@@ -1,3 +1,4 @@
+
 class Broadcast:
     def __init__(self, is_live, title, category):
         self.__is_live = is_live

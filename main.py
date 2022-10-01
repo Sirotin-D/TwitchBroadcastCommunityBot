@@ -3,15 +3,17 @@ import config
 import messages
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
-import twitch_requests
-import vk_requests
+from Broadcast import Broadcast
+from Twitch import twitch_requests
+from Vk import vk_requests
 from threading import Thread
+
 vk_session = vk_api.VkApi(token=config.auth_vk_token)
 
 
-def checkLiveStream() -> str:
-    broadcast_live = twitch_requests.get_current_broadcast_status()
-    streamer_message = messages.stream_status
+def get_broadcast_status_message() -> str:
+    broadcast_live: Broadcast = twitch_requests.get_current_broadcast_status()
+    streamer_message: str = messages.stream_status
     if broadcast_live.is_broadcast_live():
         streamer_message = "{broadcast_status}\n" \
                            "Текущий стрим: {broadcast_title}\n" \
@@ -25,7 +27,7 @@ def checkLiveStream() -> str:
     return streamer_message
 
 
-def vk_write_message(user_id, message):
+def vk_write_message(user_id: str, message: str):
     try:
         vk_session.method(config.vk_messages_send_method, {"user_id": user_id, "message": message, "random_id": 0})
     except Exception:
@@ -36,7 +38,7 @@ def vk_get_group_members_id_list() -> list:
     return vk_requests.vk_get_group_members_id_list(group_id=config.vk_test_group_id)
 
 
-def vk_make_news_letter(user_id_list, message):
+def vk_make_news_letter(user_id_list: list, message: str):
     for user_id in user_id_list:
         vk_write_message(user_id=user_id, message=message)
 
@@ -49,7 +51,7 @@ def query_answer_mode():
                 if event.text.lower() == "привет":
                     stream_message = messages.greeting_message
                 elif event.text.lower() == "стрим":
-                    stream_message = checkLiveStream()
+                    stream_message = get_broadcast_status_message()
                 elif event.text.lower() == "график":
                     stream_message = messages.stream_schedule
                 else:
@@ -59,15 +61,15 @@ def query_answer_mode():
 
 
 def broadcast_news_letter_mode():
-    is_notified = False
+    is_notified: bool = False
     while True:
-        broadcast_live = twitch_requests.get_current_broadcast_status()
+        broadcast_live: Broadcast = twitch_requests.get_current_broadcast_status()
         if broadcast_live.is_broadcast_live() and not is_notified:
             is_notified = True
-            members_id_list = vk_get_group_members_id_list()
-            streamer_message = "{broadcast_status}\n" \
-                               "Текущий стрим: {broadcast_title}\n" \
-                               "Категория: {broadcast_category}\n" \
+            members_id_list: list = vk_get_group_members_id_list()
+            streamer_message: str = "{broadcast_status}\n" \
+                                    "Текущий стрим: {broadcast_title}\n" \
+                                    "Категория: {broadcast_category}\n" \
                 .format(broadcast_status=messages.streamerNowOnline,
                         broadcast_title=broadcast_live.get_current_title_broadcast(),
                         broadcast_category=broadcast_live.get_current_category_broadcast())
