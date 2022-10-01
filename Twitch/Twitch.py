@@ -24,7 +24,9 @@ class Twitch:
     def get_last_broadcast(self) -> Broadcast:
         self.__auth()
 
-        url: str = config.twitch_api_search_channels_url + self.__twitch_channel_name
+        url: str = "{search_channels_url}{twitch_channel}".format(
+            search_channels_url=config.twitch_api_search_channels_url,
+            twitch_channel=self.__twitch_channel_name)
         body: dict = {
             "Client-ID": config.twitch_client_id,
             "Authorization": "Bearer %s" % self.__access_token
