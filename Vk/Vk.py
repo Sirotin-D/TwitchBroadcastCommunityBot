@@ -4,7 +4,7 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 import messages
 from Twitch.Twitch import Twitch
 from Twitch.Broadcast import Broadcast
-from dev_requests import RequestService
+from Services.request_service import RequestService
 import config
 
 

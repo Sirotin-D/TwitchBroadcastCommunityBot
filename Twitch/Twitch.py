@@ -1,6 +1,6 @@
 import config
 from Twitch.Broadcast import Broadcast
-from dev_requests import RequestService
+from Services.request_service import RequestService
 
 
 class Twitch:

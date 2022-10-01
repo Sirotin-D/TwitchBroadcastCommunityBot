@@ -1,4 +1,4 @@
-from dev_requests import RequestService
+from Services.request_service import RequestService
 import config
 
 
