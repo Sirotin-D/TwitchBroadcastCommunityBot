@@ -1,10 +1,10 @@
 import time
-import config
-import messages
+from threading import Thread
 from Twitch.Twitch import Twitch
 from Vk.Vk import Vk
 from Twitch.Broadcast import Broadcast
-from threading import Thread
+import config
+import messages
 
 
 def query_answer_mode(twitch: Twitch, vk: Vk):

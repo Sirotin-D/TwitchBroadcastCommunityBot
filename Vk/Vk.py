@@ -1,11 +1,10 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
-
-import messages
 from Twitch.Twitch import Twitch
 from Twitch.Broadcast import Broadcast
 from Services.request_service import RequestService
 import config
+import messages
 
 
 class Vk:
