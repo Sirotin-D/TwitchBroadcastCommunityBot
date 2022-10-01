@@ -19,7 +19,7 @@ def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):
 
         if broadcast.is_live and not is_notified:
             is_notified = True
-            members_id_list: list = vk.get_group_members_id_list(group_id=config.vk_test_group_id)
+            members_id_list: list = vk.get_group_members_id_list()
             streamer_message: str = messages.get_newsletter_message_when_broadcast_live(title=broadcast.title,
                                                                                         category=broadcast.category)
             vk.send_newsletter(members_id_list, streamer_message)
@@ -34,7 +34,8 @@ def main():
     twitch = Twitch(client_id=config.twitch_client_id,
                     secret_id=config.twitch_secret_id,
                     twitch_channel=config.twitch_channel_name)
-    vk = Vk(auth_token=config.vk_test_access_token)
+    vk = Vk(auth_token=config.vk_test_access_token,
+            group_id=config.vk_test_group_id)
 
     thread_1 = Thread(target=broadcast_newsletter_mode,
                       args=(twitch, vk,))

@@ -9,9 +9,12 @@ import config
 
 
 class Vk:
-    def __init__(self, auth_token):
+    def __init__(self,
+                 auth_token,
+                 group_id):
         self.__auth_token = auth_token
         self.__vk_session = vk_api.VkApi(token=auth_token)
+        self.__group_id = group_id
 
     def __vk_post_request(self, url: str, method: str, body: dict) -> dict:
         correct_url: str = "{vk_api_url}/{vk_api_method}".format(vk_api_url=url,
@@ -19,13 +22,13 @@ class Vk:
         response: dict = RequestService.post_request(url=correct_url, body=body)
         return response
 
-    def get_group_members_id_list(self, group_id) -> list:
+    def get_group_members_id_list(self) -> list:
         url: str = config.vk_api_request_url
         method: str = config.vk_get_group_members_method
         body: dict = {
             "v": config.vk_api_version,
-            "access_token": config.vk_test_access_token,
-            "group_id": group_id
+            "access_token": self.__auth_token,
+            "group_id": self.__group_id
         }
         vk_response: dict = self.__vk_post_request(url=url, method=method, body=body)
         members_id_list: list = vk_response["response"]["items"]
