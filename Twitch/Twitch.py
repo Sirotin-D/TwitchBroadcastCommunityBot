@@ -4,20 +4,15 @@ from Services.request_service import RequestService
 
 
 class Twitch:
-    def __init__(self,
-                 client_id: str,
-                 secret_id: str,
-                 twitch_channel: str):
+    def __init__(self, twitch_channel: str):
         self.__access_token = ""
-        self.__client_id = client_id
-        self.__secret_id = secret_id
         self.__twitch_channel_name = twitch_channel
 
     def __auth(self):
         url: str = config.twitch_api_auth_url
         body: dict = {
-            "client_id": self.__client_id,
-            "client_secret": self.__secret_id,
+            "client_id": config.twitch_client_id,
+            "client_secret": config.twitch_secret_id,
             "grant_type": config.twitch_grant_type
         }
         response: dict = RequestService.post_request(url=url, body=body)

@@ -31,9 +31,7 @@ def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):
 
 
 def main():
-    twitch = Twitch(client_id=config.twitch_client_id,
-                    secret_id=config.twitch_secret_id,
-                    twitch_channel=config.twitch_channel_name)
+    twitch = Twitch(twitch_channel=config.twitch_channel_name)
     vk = Vk(auth_token=config.vk_test_access_token,
             group_id=config.vk_test_group_id)
 
