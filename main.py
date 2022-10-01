@@ -14,13 +14,13 @@ vk_session = vk_api.VkApi(token=config.auth_vk_token)
 def get_broadcast_status_message() -> str:
     broadcast_live: Broadcast = twitch_requests.get_current_broadcast_status()
     streamer_message: str = messages.stream_status
-    if broadcast_live.is_broadcast_live():
+    if broadcast_live.is_live:
         streamer_message = "{broadcast_status}\n" \
                            "Текущий стрим: {broadcast_title}\n" \
                            "Категория: {broadcast_category}\n" \
             .format(broadcast_status=messages.streamerNowOnline,
-                    broadcast_title=broadcast_live.get_current_title_broadcast(),
-                    broadcast_category=broadcast_live.get_current_category_broadcast())
+                    broadcast_title=broadcast_live.title,
+                    broadcast_category=broadcast_live.category)
     else:
         streamer_message += messages.streamerNowOffline
 
@@ -64,18 +64,18 @@ def broadcast_news_letter_mode():
     is_notified: bool = False
     while True:
         broadcast_live: Broadcast = twitch_requests.get_current_broadcast_status()
-        if broadcast_live.is_broadcast_live() and not is_notified:
+        if broadcast_live.is_live and not is_notified:
             is_notified = True
             members_id_list: list = vk_get_group_members_id_list()
             streamer_message: str = "{broadcast_status}\n" \
                                     "Текущий стрим: {broadcast_title}\n" \
                                     "Категория: {broadcast_category}\n" \
                 .format(broadcast_status=messages.streamerNowOnline,
-                        broadcast_title=broadcast_live.get_current_title_broadcast(),
-                        broadcast_category=broadcast_live.get_current_category_broadcast())
+                        broadcast_title=broadcast_live.title,
+                        broadcast_category=broadcast_live.category)
 
             vk_make_news_letter(members_id_list, streamer_message)
-        elif not broadcast_live.is_broadcast_live():
+        elif not broadcast_live.is_live:
             is_notified = False
 
         time.sleep(config.twitch_waiting_request_seconds)
