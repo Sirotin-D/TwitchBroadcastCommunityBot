@@ -1,5 +1,5 @@
-import dev_requests
-from Broadcast import Broadcast
+from dev_requests import RequestService
+from Twitch.Broadcast import Broadcast
 import config
 
 
@@ -10,7 +10,7 @@ def get_Twitch_access_token() -> str:
         "client_secret": config.secret_id,
         "grant_type": config.twitch_grant_type
     }
-    response: dict = dev_requests.post_request(url=url, body=body)
+    response: dict = RequestService.post_request(url=url, body=body)
     try:
         access_token: str = response["access_token"]
     except Exception:
@@ -26,7 +26,7 @@ def get_current_broadcast_status() -> Broadcast:
         "Client-ID": config.client_id,
         "Authorization": "Bearer %s" % access_token
     }
-    response: dict = dev_requests.get_request(url=url, body=body)
+    response: dict = RequestService.get_request(url=url, body=body)
     channel_list: list = response["data"]
     streamer = dict()
     for channel in channel_list:

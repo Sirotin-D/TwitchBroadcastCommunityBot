@@ -1,11 +1,11 @@
-import dev_requests
+from dev_requests import RequestService
 import config
 
 
 def vk_post_request(url: str, method: str, body: dict) -> dict:
     correct_url: str = "{vk_api_url}/{vk_api_method}".format(vk_api_url=url,
                                                              vk_api_method=method)
-    response: dict = dev_requests.post_request(url=correct_url, body=body)
+    response: dict = RequestService.post_request(url=correct_url, body=body)
     return response
 
 

@@ -3,7 +3,7 @@ import config
 import messages
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
-from Broadcast import Broadcast
+from Twitch.Broadcast import Broadcast
 from Twitch import twitch_requests
 from Vk import vk_requests
 from threading import Thread
