@@ -49,13 +49,13 @@ class Vk:
             if event.type == VkEventType.MESSAGE_NEW:
                 if event.to_me:
                     if event.text.lower() == "привет":
-                        stream_message = messages.greeting_message
+                        answer_message = messages.greeting_message
                     elif event.text.lower() == "стрим":
                         broadcast: Broadcast = twitch_channel.get_last_broadcast()
-                        stream_message = messages.get_broadcast_status_message(broadcast=broadcast)
+                        answer_message = messages.get_broadcast_status_message(broadcast=broadcast)
                     elif event.text.lower() == "график":
-                        stream_message = messages.stream_schedule
+                        answer_message = messages.stream_schedule
                     else:
-                        stream_message = messages.all_commands_message
+                        answer_message = messages.all_commands_message
 
-                    self.__send_message(user_id=event.user_id, message=stream_message)
+                    self.__send_message(user_id=event.user_id, message=answer_message)
