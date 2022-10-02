@@ -1,5 +1,5 @@
-import config
-from Twitch.Broadcast import Broadcast
+from Config import private_config
+from DataClasses.Broadcast import Broadcast
 
 all_commands_message = "Список команд бота:\n " \
                        "1) Стрим - узнать, идёт ли сейчас стрим\n" \
@@ -13,7 +13,7 @@ stream_status_message = "Статус стрима: \n"
 stream_now_offline_message = "Стрим сейчас оффлайн"
 stream_now_online_message = "Стрим сейчас онлайн!\n" \
                             "Скорее залетай на трансляцию\n {twitch_channel_url}" \
-    .format(twitch_channel_url=config.twitch_channel_url)
+    .format(twitch_channel_url=private_config.twitch_channel_url)
 
 
 def get_newsletter_message_when_broadcast_live(title: str, category: str) -> str:

@@ -2,9 +2,10 @@ import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from Twitch.Twitch import Twitch
-from Twitch.Broadcast import Broadcast
+from DataClasses.Broadcast import Broadcast
 from Services.request_service import RequestService
-import config
+from Config import private_config
+from Config import api_config
 import messages
 
 
@@ -18,26 +19,25 @@ class Vk:
 
     def __get_group_members_id_list(self) -> list:
         body: dict = {
-            "v": config.vk_api_version,
+            "v": api_config.vk_api_version,
             "access_token": self.__auth_token,
             "group_id": self.__group_id
         }
-        url: str = "{vk_api_url}/{vk_api_method}".format(vk_api_url=config.vk_api_request_url,
-                                                         vk_api_method=config.vk_get_group_members_method)
-        members_id_list = list()
+        url: str = "{vk_api_url}/{vk_api_method}".format(vk_api_url=api_config.vk_api_request_url,
+                                                         vk_api_method=api_config.vk_get_group_members_method)
         try:
             vk_response: dict = RequestService.post_request(url=url, body=body)
             members_id_list: list = vk_response["response"]["items"]
         except Exception as error:
             print(f"Error: {error}")
-            raise Exception(f"Error getting group members id list: {error}")
-        finally:
-            return members_id_list
+            raise Exception(error)
+
+        return members_id_list
 
     def __send_message(self, user_id: str, message: str):
         keyboard = self.__create_keyboard()
         try:
-            self.__vk_session.method(config.vk_messages_send_method,
+            self.__vk_session.method(api_config.vk_messages_send_method,
                                      {
                                          "user_id": user_id,
                                          "message": message,
@@ -48,15 +48,14 @@ class Vk:
             pass
 
     def send_newsletter(self, message: str):
-        user_id_list = list()
         try:
             user_id_list: list = self.__get_group_members_id_list()
         except Exception as error:
             print(f"Error getting group members: {error}")
-            pass
-        finally:
-            for user_id in user_id_list:
-                self.__send_message(user_id=user_id, message=message)
+            return
+
+        for user_id in user_id_list:
+            self.__send_message(user_id=user_id, message=message)
 
     def query_answer_mode(self, twitch: Twitch):
         long_poll = VkLongPoll(self.__vk_session)
@@ -70,7 +69,7 @@ class Vk:
                             broadcast: Broadcast = twitch.get_last_broadcast()
                         except Exception as error:
                             print(f"Error getting last broadcast: {error}")
-                            return
+                            continue
                         answer_message = messages.get_broadcast_status_message(broadcast=broadcast)
                     elif event.text.lower() == "график":
                         answer_message = messages.stream_schedule
@@ -85,5 +84,5 @@ class Vk:
         keyboard.add_line()
         keyboard.add_button("График", color=VkKeyboardColor.NEGATIVE)
         keyboard.add_line()
-        keyboard.add_openlink_button("Перейти на канал", link=config.twitch_channel_url)
+        keyboard.add_openlink_button("Перейти на канал", link=private_config.twitch_channel_url)
         return keyboard
