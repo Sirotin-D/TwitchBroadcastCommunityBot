@@ -23,9 +23,16 @@ class Vk:
         }
         url: str = "{vk_api_url}/{vk_api_method}".format(vk_api_url=config.vk_api_request_url,
                                                          vk_api_method=config.vk_get_group_members_method)
-        vk_response: dict = RequestService.post_request(url=url, body=body)
-        members_id_list: list = vk_response["response"]["items"]
-        return members_id_list
+        members_id_list = list()
+        try:
+            vk_response: dict = RequestService.post_request(url=url, body=body)
+            members_id_list: list = vk_response["response"]["items"]
+        except Exception as error:
+            print(f"Error: {error}")
+            raise Exception(f"Error getting group members id list: {error}")
+        finally:
+            print(members_id_list)
+            return members_id_list
 
     def __send_message(self, user_id: str, message: str):
         try:
@@ -39,9 +46,15 @@ class Vk:
             pass
 
     def send_newsletter(self, message: str):
-        user_id_list: list = self.__get_group_members_id_list()
-        for user_id in user_id_list:
-            self.__send_message(user_id=user_id, message=message)
+        user_id_list = list()
+        try:
+            user_id_list: list = self.__get_group_members_id_list()
+        except Exception as error:
+            print(f"Error getting group members: {error}")
+            pass
+        finally:
+            for user_id in user_id_list:
+                self.__send_message(user_id=user_id, message=message)
 
     def query_answer_mode(self, twitch: Twitch):
         long_poll = VkLongPoll(self.__vk_session)
@@ -51,7 +64,11 @@ class Vk:
                     if event.text.lower() == "привет":
                         answer_message = messages.greeting_message
                     elif event.text.lower() == "стрим":
-                        broadcast: Broadcast = twitch.get_last_broadcast()
+                        try:
+                            broadcast: Broadcast = twitch.get_last_broadcast()
+                        except Exception as error:
+                            print(f"Error getting last broadcast: {error}")
+                            return
                         answer_message = messages.get_broadcast_status_message(broadcast=broadcast)
                     elif event.text.lower() == "график":
                         answer_message = messages.stream_schedule

@@ -36,7 +36,6 @@ class Twitch:
             "Authorization": "Bearer %s" % self.__access_token.token
         }
 
-        current_broadcast: Broadcast
         try:
             response: dict = RequestService.get_request(url=url, body=body)
             channel_list: list = response["data"]
