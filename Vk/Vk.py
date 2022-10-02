@@ -1,5 +1,6 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
+from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from Twitch.Twitch import Twitch
 from Twitch.Broadcast import Broadcast
 from Services.request_service import RequestService
@@ -35,12 +36,14 @@ class Vk:
             return members_id_list
 
     def __send_message(self, user_id: str, message: str):
+        keyboard = self.create_keyboard()
         try:
             self.__vk_session.method(config.vk_messages_send_method,
                                      {
                                          "user_id": user_id,
                                          "message": message,
-                                         "random_id": 0
+                                         "random_id": 0,
+                                         "keyboard": keyboard.get_keyboard()
                                      })
         except Exception:
             pass
@@ -61,7 +64,7 @@ class Vk:
         for event in long_poll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
                 if event.to_me:
-                    if event.text.lower() == "привет":
+                    if event.text.lower() == "привет" or event.text.lower() == "start" or event.text.lower() == "старт":
                         answer_message = messages.greeting_message
                     elif event.text.lower() == "стрим":
                         try:
@@ -76,3 +79,12 @@ class Vk:
                         answer_message = messages.all_commands_message
 
                     self.__send_message(user_id=event.user_id, message=answer_message)
+
+    def __create_keyboard(self) -> VkKeyboard:
+        keyboard = VkKeyboard()
+        keyboard.add_button("Стрим", color=VkKeyboardColor.POSITIVE)
+        keyboard.add_line()
+        keyboard.add_button("График", color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
+        keyboard.add_openlink_button("Перейти на канал", link=config.twitch_channel_url)
+        return keyboard
