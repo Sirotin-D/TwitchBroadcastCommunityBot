@@ -2,8 +2,9 @@ import time
 from threading import Thread
 from Twitch.Twitch import Twitch
 from Vk.Vk import Vk
-from Twitch.Broadcast import Broadcast
-import config
+from DataClasses.Broadcast import Broadcast
+from Config import private_config
+from Config import api_config
 import messages
 
 
@@ -15,7 +16,11 @@ def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):
     is_notified: bool = False
 
     while True:
-        broadcast: Broadcast = twitch.get_last_broadcast()
+        try:
+            broadcast: Broadcast = twitch.get_last_broadcast()
+        except Exception as error:
+            print(f"Error getting current broadcast: {error}")
+            return
 
         if broadcast.is_live and not is_notified:
             is_notified = True
@@ -26,13 +31,13 @@ def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):
         elif not broadcast.is_live:
             is_notified = False
 
-        time.sleep(config.twitch_waiting_request_seconds)
+        time.sleep(api_config.twitch_waiting_request_seconds)
 
 
 def main():
-    twitch = Twitch(twitch_channel=config.twitch_channel_name)
-    vk = Vk(auth_token=config.vk_test_access_token,
-            group_id=config.vk_test_group_id)
+    twitch = Twitch(twitch_channel=private_config.twitch_channel_name)
+    vk = Vk(auth_token=private_config.vk_test_access_token,
+            group_id=private_config.vk_test_group_id)
 
     thread_1 = Thread(target=broadcast_newsletter_mode,
                       args=(twitch, vk,))
