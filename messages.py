@@ -7,7 +7,7 @@ all_commands_message = "Список команд бота:\n " \
                        "3) Команды - список всех команд"
 greeting_message = "Здарова! {message_after_greeting}".format(message_after_greeting=all_commands_message)
 stream_schedule = "График стримов:\n " \
-                  "Каждый день в 22:00\n" \
+                  "Каждый день в 19:00\n" \
                   "Суббота - выходной"
 stream_status_message = "Статус стрима: \n"
 stream_now_offline_message = "Стрим сейчас оффлайн"

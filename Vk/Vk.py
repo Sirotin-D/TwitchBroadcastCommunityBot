@@ -32,11 +32,10 @@ class Vk:
             print(f"Error: {error}")
             raise Exception(f"Error getting group members id list: {error}")
         finally:
-            print(members_id_list)
             return members_id_list
 
     def __send_message(self, user_id: str, message: str):
-        keyboard = self.create_keyboard()
+        keyboard = self.__create_keyboard()
         try:
             self.__vk_session.method(config.vk_messages_send_method,
                                      {
