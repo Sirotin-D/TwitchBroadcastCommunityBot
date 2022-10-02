@@ -5,9 +5,15 @@ class RequestService:
     @staticmethod
     def post_request(url: str, body: dict = "") -> dict:
         response = requests.post(url=url, params=body)
-        return response.json()
+        if response.status_code != 200:
+            raise Exception(f"Error request. Status code: {response.status_code}")
+        else:
+            return response.json()
 
     @staticmethod
     def get_request(url: str, body: dict = "") -> dict:
         response = requests.get(url=url, headers=body)
-        return response.json()
+        if response.status_code != 200:
+            raise Exception(f"Error request. Status code: {response.status_code}")
+        else:
+            return response.json()

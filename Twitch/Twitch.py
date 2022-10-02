@@ -1,11 +1,12 @@
 import config
+from DataClasses.twitch_access_token import TwitchAccessToken
 from Twitch.Broadcast import Broadcast
 from Services.request_service import RequestService
 
 
 class Twitch:
     def __init__(self, twitch_channel: str):
-        self.__access_token = ""
+        self.__access_token: TwitchAccessToken
         self.__twitch_channel_name = twitch_channel
 
     def __auth(self):
@@ -15,11 +16,14 @@ class Twitch:
             "client_secret": config.twitch_secret_id,
             "grant_type": config.twitch_grant_type
         }
-        response: dict = RequestService.post_request(url=url, body=body)
         try:
-            self.__access_token: str = response["access_token"]
-        except Exception:
-            print("Error getting access token")
+            response: dict = RequestService.post_request(url=url, body=body)
+            self.__access_token = TwitchAccessToken(token=response["access_token"],
+                                                    expires_in=response["expires_in"],
+                                                    token_type=response["token_type"])
+        except Exception as error:
+            print(f"Error getting access token: {error}")
+            return
 
     def get_last_broadcast(self) -> Broadcast:
         self.__auth()
@@ -29,25 +33,28 @@ class Twitch:
             twitch_channel=self.__twitch_channel_name)
         body: dict = {
             "Client-ID": config.twitch_client_id,
-            "Authorization": "Bearer %s" % self.__access_token
+            "Authorization": "Bearer %s" % self.__access_token.token
         }
-        response: dict = RequestService.get_request(url=url, body=body)
 
-        channel_list = list()
+        current_broadcast: Broadcast
         try:
+            response: dict = RequestService.get_request(url=url, body=body)
             channel_list: list = response["data"]
-        except Exception:
-            print("Error getting channel_list")
+            streamer = dict()
+            for channel in channel_list:
+                if channel["broadcaster_login"] == self.__twitch_channel_name:
+                    streamer = channel
+                    break
+            if len(streamer) != 0:
+                current_broadcast = Broadcast(is_live=streamer["is_live"],
+                                              title=streamer["title"],
+                                              category=streamer["game_name"])
+            else:
+                print("Not found broadcast channel")
+                raise Exception("Not found broadcast channel")
+        except Exception as error:
+            print(f"Error: {error}")
+            raise Exception(f"Error: {error}")
 
-        streamer = dict()
-        for channel in channel_list:
-            if channel["broadcaster_login"] == self.__twitch_channel_name:
-                streamer = channel
-                break
-
-        if len(streamer) != 0:
-            current_broadcast = Broadcast(is_live=streamer["is_live"], title=streamer["title"],
-                                          category=streamer["game_name"])
+        finally:
             return current_broadcast
-        else:
-            raise Exception("Not found broadcast channel")
