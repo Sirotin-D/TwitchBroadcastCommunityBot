@@ -1,3 +1,6 @@
+import time
+
+import requests.exceptions
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
@@ -59,24 +62,31 @@ class Vk:
 
     def query_answer_mode(self, twitch: Twitch):
         long_poll = VkLongPoll(self.__vk_session)
-        for event in long_poll.listen():
-            if event.type == VkEventType.MESSAGE_NEW:
-                if event.to_me:
-                    if event.text.lower() == "привет" or event.text.lower() == "start" or event.text.lower() == "старт":
-                        answer_message = messages.greeting_message
-                    elif event.text.lower() == "стрим":
-                        try:
-                            broadcast: Broadcast = twitch.get_last_broadcast()
-                        except Exception as error:
-                            print(f"Error getting last broadcast: {error}")
-                            continue
-                        answer_message = messages.get_broadcast_status_message(broadcast=broadcast)
-                    elif event.text.lower() == "график":
-                        answer_message = messages.stream_schedule
-                    else:
-                        answer_message = messages.all_commands_message
+        while True:
+            try:
+                for event in long_poll.listen():
+                    if event.type == VkEventType.MESSAGE_NEW:
+                        if event.to_me:
+                            if event.text.lower() == "привет" or event.text.lower() == "start" or event.text.lower() == "старт":
+                                answer_message = messages.greeting_message
+                            elif event.text.lower() == "стрим":
+                                try:
+                                    broadcast: Broadcast = twitch.get_last_broadcast()
+                                except Exception as error:
+                                    print(f"Error getting last broadcast: {error}")
+                                    continue
+                                answer_message = messages.get_broadcast_status_message(broadcast=broadcast)
+                            elif event.text.lower() == "график":
+                                answer_message = messages.stream_schedule
+                            else:
+                                answer_message = messages.all_commands_message
 
-                    self.__send_message(user_id=event.user_id, message=answer_message)
+                            self.__send_message(user_id=event.user_id, message=answer_message)
+            except requests.exceptions.RequestException as request_error:
+                print(f"Request error: {request_error}\n Reconnect to VK.com server...")
+
+            continue
+
 
     def __create_keyboard(self) -> VkKeyboard:
         keyboard = VkKeyboard()
