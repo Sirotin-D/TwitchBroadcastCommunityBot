@@ -23,15 +23,13 @@ class Twitch:
                                                     expires_in=response["expires_in"],
                                                     token_type=response["token_type"])
         except Exception as error:
-            print(f"Error getting access token: {error}")
             raise Exception(error)
 
     def get_last_broadcast(self) -> Broadcast:
         try:
             self.__auth()
         except Exception as error:
-            print(f"Error getting access token: {error}")
-            raise Exception(error)
+            raise Exception(f"Error getting access token: {error}")
 
         url: str = "{search_channels_url}{twitch_channel}".format(
             search_channels_url=api_config.twitch_api_search_channels_url,
@@ -54,10 +52,8 @@ class Twitch:
                                               title=streamer["title"],
                                               category=streamer["game_name"])
             else:
-                print("Not found broadcast channel")
                 raise Exception("Not found broadcast channel")
         except Exception as error:
-            print(f"Error: {error}")
             raise Exception(error)
 
         return current_broadcast

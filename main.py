@@ -18,20 +18,19 @@ def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):
     while True:
         try:
             broadcast: Broadcast = twitch.get_last_broadcast()
+            if broadcast.is_live and not is_notified:
+                streamer_message: str = messages.get_newsletter_message_when_broadcast_live(title=broadcast.title,
+                                                                                            category=broadcast.category)
+                vk.send_newsletter(streamer_message)
+                is_notified = True
+
+            elif not broadcast.is_live:
+                is_notified = False
         except Exception as error:
-            print(f"Error getting current broadcast: {error}")
-            return
-
-        if broadcast.is_live and not is_notified:
-            is_notified = True
-            streamer_message: str = messages.get_newsletter_message_when_broadcast_live(title=broadcast.title,
-                                                                                        category=broadcast.category)
-            vk.send_newsletter(streamer_message)
-
-        elif not broadcast.is_live:
-            is_notified = False
+            print(error)
 
         time.sleep(api_config.twitch_waiting_request_seconds)
+        continue
 
 
 def main():
