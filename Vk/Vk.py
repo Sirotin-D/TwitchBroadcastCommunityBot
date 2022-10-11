@@ -19,6 +19,16 @@ class Vk:
         self.__vk_session = vk_api.VkApi(token=auth_token)
         self.__group_id = group_id
 
+    @staticmethod
+    def __create_keyboard() -> VkKeyboard:
+        keyboard = VkKeyboard()
+        keyboard.add_button("Стрим", color=VkKeyboardColor.POSITIVE)
+        keyboard.add_line()
+        keyboard.add_button("График", color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
+        keyboard.add_openlink_button("Перейти на канал", link=private_config.twitch_channel_url)
+        return keyboard
+
     def __get_group_members_id_list(self) -> list:
         body: dict = {
             "v": api_config.vk_api_version,
@@ -83,12 +93,3 @@ class Vk:
                 time.sleep(api_config.twitch_waiting_request_seconds)
 
             continue
-
-    def __create_keyboard(self) -> VkKeyboard:
-        keyboard = VkKeyboard()
-        keyboard.add_button("Стрим", color=VkKeyboardColor.POSITIVE)
-        keyboard.add_line()
-        keyboard.add_button("График", color=VkKeyboardColor.NEGATIVE)
-        keyboard.add_line()
-        keyboard.add_openlink_button("Перейти на канал", link=private_config.twitch_channel_url)
-        return keyboard
