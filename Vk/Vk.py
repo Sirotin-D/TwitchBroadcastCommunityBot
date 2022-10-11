@@ -1,6 +1,5 @@
 import time
-
-import requests.exceptions
+from datetime import datetime
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
@@ -32,7 +31,7 @@ class Vk:
             vk_response: dict = RequestService.post_request(url=url, body=body)
             members_id_list: list = vk_response["response"]["items"]
         except Exception as error:
-            raise Exception(error)
+            raise Exception(f"Error getting current group members id list: {error}")
 
         return members_id_list
 
@@ -53,7 +52,7 @@ class Vk:
         try:
             user_id_list: list = self.__get_group_members_id_list()
         except Exception as error:
-            raise Exception(f"Error getting current group members id list: {error}")
+            raise Exception(f"Error sending newsletter: {error}")
 
         for user_id in user_id_list:
             self.__send_message(user_id=user_id, message=message)
@@ -70,10 +69,7 @@ class Vk:
                                     or event.text.lower() == "старт":
                                 answer_message = messages.greeting_message
                             elif event.text.lower() == "стрим":
-                                try:
-                                    broadcast: Broadcast = twitch.get_last_broadcast()
-                                except Exception as error:
-                                    raise Exception(f"Error getting last broadcast: {error}")
+                                broadcast: Broadcast = twitch.get_last_broadcast()
                                 answer_message = messages.get_broadcast_status_message(broadcast=broadcast)
                             elif event.text.lower() == "график":
                                 answer_message = messages.stream_schedule
@@ -81,12 +77,12 @@ class Vk:
                                 answer_message = messages.all_commands_message
 
                             self.__send_message(user_id=event.user_id, message=answer_message)
-            except requests.exceptions.RequestException as request_error:
-                print(f"Request error: {request_error}")
-                print("Reconnect to VK.com server")
-
             except Exception as error:
-                print(error)
+                error_message = "{date}. {message}".format(date=datetime.now().strftime('%d.%m.%Y %H:%M:%S'),
+                                                           message=error)
+                print(error_message)
+                print("Waiting {waiting_request_time} seconds".format(waiting_request_time=api_config.twitch_waiting_request_seconds))
+                time.sleep(api_config.twitch_waiting_request_seconds)
 
             continue
 
