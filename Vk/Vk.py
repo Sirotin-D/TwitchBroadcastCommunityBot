@@ -25,8 +25,8 @@ class Vk:
             "access_token": self.__auth_token,
             "group_id": self.__group_id
         }
-        url: str = "{vk_api_url}/{vk_api_method}".format(vk_api_url=api_config.vk_api_request_url,
-                                                         vk_api_method=api_config.vk_get_group_members_method)
+        url: str = f"{api_config.vk_api_request_url}/{api_config.vk_get_group_members_method}"
+
         try:
             vk_response: dict = RequestService.post_request(url=url, body=body)
             members_id_list: list = vk_response["response"]["items"]
@@ -78,10 +78,8 @@ class Vk:
 
                             self.__send_message(user_id=event.user_id, message=answer_message)
             except Exception as error:
-                error_message = "{date}. {message}".format(date=datetime.now().strftime('%d.%m.%Y %H:%M:%S'),
-                                                           message=error)
-                print(error_message)
-                print("Waiting {waiting_request_time} seconds".format(waiting_request_time=api_config.twitch_waiting_request_seconds))
+                print(f"{datetime.now():%d.%m.%Y %H:%M:%S}. {error}")
+                print(f"Waiting {api_config.twitch_waiting_request_seconds} seconds")
                 time.sleep(api_config.twitch_waiting_request_seconds)
 
             continue

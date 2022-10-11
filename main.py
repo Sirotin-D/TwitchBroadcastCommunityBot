@@ -28,9 +28,7 @@ def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):
             elif not broadcast.is_live:
                 is_notified = False
         except Exception as error:
-            error_message = "{date}. {message}".format(date=datetime.now().strftime('%d.%m.%Y %H:%M:%S'),
-                                                       message=error)
-            print(error_message)
+            print(f"{datetime.now():'%d.%m.%Y %H:%M:%S'}. {error}")
 
         time.sleep(api_config.twitch_waiting_request_seconds)
         continue

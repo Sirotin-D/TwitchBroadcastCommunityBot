@@ -29,9 +29,7 @@ class Twitch:
         try:
             self.__auth()
 
-            url: str = "{search_channels_url}{twitch_channel}".format(
-                search_channels_url=api_config.twitch_api_search_channels_url,
-                twitch_channel=self.__twitch_channel_name)
+            url: str = f"{api_config.twitch_api_search_channels_url}{self.__twitch_channel_name}"
             body: dict = {
                 "Client-ID": private_config.twitch_client_id,
                 "Authorization": "Bearer %s" % self.__access_token.token
