@@ -1,6 +1,6 @@
 import time
 from datetime import datetime
-import vk_api
+from vk_api.vk_api import VkApi
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from Twitch.Twitch import Twitch
@@ -16,11 +16,11 @@ class Vk:
                  auth_token,
                  group_id):
         self.__auth_token = auth_token
-        self.__vk_session = vk_api.VkApi(token=auth_token)
+        self.__vk_session = VkApi(token=auth_token)
         self.__group_id = group_id
 
     @staticmethod
-    def __create_keyboard() -> VkKeyboard:
+    def create_keyboard() -> VkKeyboard:
         keyboard = VkKeyboard()
         keyboard.add_button("Стрим", color=VkKeyboardColor.POSITIVE)
         keyboard.add_line()
@@ -46,7 +46,7 @@ class Vk:
         return members_id_list
 
     def __send_message(self, user_id: str, message: str):
-        keyboard = self.__create_keyboard()
+        keyboard = self.create_keyboard()
         try:
             self.__vk_session.method(api_config.vk_messages_send_method,
                                      {
