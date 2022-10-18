@@ -1,3 +1,4 @@
+from datetime import datetime
 from Config import private_config
 from Config import api_config
 from DataClasses.twitch_access_token import TwitchAccessToken
@@ -11,6 +12,9 @@ class Twitch:
         self.__twitch_channel_name = twitch_channel
 
     def __auth(self):
+        if hasattr(self, "_Twitch__access_token") and datetime.now() < self.__access_token.expires_in:
+            return
+
         url: str = api_config.twitch_api_auth_url
         body: dict = {
             "client_id": private_config.twitch_client_id,
@@ -19,8 +23,11 @@ class Twitch:
         }
         try:
             response: dict = RequestService.post_request(url=url, body=body)
+            now_timestamp: float = datetime.timestamp(datetime.now())
+            expires_in_timestamp: int = int(now_timestamp + response["expires_in"])
+            expires_in_date: datetime = datetime.fromtimestamp(expires_in_timestamp)
             self.__access_token = TwitchAccessToken(token=response["access_token"],
-                                                    expires_in=response["expires_in"],
+                                                    expires_in=expires_in_date,
                                                     token_type=response["token_type"])
         except Exception as error:
             raise Exception(f"Error getting access token: {error}")
@@ -32,7 +39,7 @@ class Twitch:
             url: str = f"{api_config.twitch_api_search_channels_url}{self.__twitch_channel_name}"
             body: dict = {
                 "Client-ID": private_config.twitch_client_id,
-                "Authorization": "Bearer %s" % self.__access_token.token
+                "Authorization": f"Bearer {self.__access_token.token}"
             }
 
             response: dict = RequestService.get_request(url=url, body=body)
