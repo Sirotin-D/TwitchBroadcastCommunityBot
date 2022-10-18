@@ -72,24 +72,21 @@ class Vk:
         while True:
             try:
                 for event in long_poll.listen():
-                    if event.type == VkEventType.MESSAGE_NEW:
-                        if event.to_me:
-                            if event.text.lower() == "привет" \
-                                    or event.text.lower() == "start" \
-                                    or event.text.lower() == "старт":
-                                answer_message = messages.greeting_message
-                            elif event.text.lower() == "стрим":
-                                broadcast: Broadcast = twitch.get_last_broadcast()
-                                answer_message = messages.get_broadcast_status_message(broadcast=broadcast)
-                            elif event.text.lower() == "график":
-                                answer_message = messages.stream_schedule
-                            else:
-                                answer_message = messages.all_commands_message
+                    if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                        if event.text.lower() == "привет" \
+                                or event.text.lower() == "start" \
+                                or event.text.lower() == "старт":
+                            answer_message = messages.greeting_message
+                        elif event.text.lower() == "стрим":
+                            broadcast: Broadcast = twitch.get_last_broadcast()
+                            answer_message = messages.get_broadcast_status_message(broadcast=broadcast)
+                        elif event.text.lower() == "график":
+                            answer_message = messages.stream_schedule
+                        else:
+                            answer_message = messages.all_commands_message
 
-                            self.__send_message(user_id=event.user_id, message=answer_message)
+                        self.__send_message(user_id=event.user_id, message=answer_message)
             except Exception as error:
                 print(f"{datetime.now():%d.%m.%Y %H:%M:%S}. {error}")
                 print(f"Waiting {api_config.twitch_waiting_request_seconds} seconds")
                 time.sleep(api_config.twitch_waiting_request_seconds)
-
-            continue
