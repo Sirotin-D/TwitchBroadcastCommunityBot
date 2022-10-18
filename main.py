@@ -31,7 +31,6 @@ def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):
             print(f"{datetime.now():'%d.%m.%Y %H:%M:%S'}. {error}")
 
         time.sleep(api_config.twitch_waiting_request_seconds)
-        continue
 
 
 def main():
