@@ -1,8 +1,9 @@
 import time
-from datetime import datetime
 from vk_api.vk_api import VkApi
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+from DataClasses.log_type import LogType
+from Services.log_service import LogService
 from Twitch.Twitch import Twitch
 from DataClasses.Broadcast import Broadcast
 from Services.request_service import RequestService
@@ -87,6 +88,7 @@ class Vk:
 
                         self.__send_message(user_id=event.user_id, message=answer_message)
             except Exception as error:
-                print(f"{datetime.now():%d.%m.%Y %H:%M:%S}. {error}")
-                print(f"Waiting {api_config.twitch_waiting_request_seconds} seconds")
+                LogService.log(str(error), log_type=LogType.ERROR)
+                LogService.log(f"Waiting {api_config.twitch_waiting_request_seconds} seconds",
+                               log_type=LogType.INFO)
                 time.sleep(api_config.twitch_waiting_request_seconds)
