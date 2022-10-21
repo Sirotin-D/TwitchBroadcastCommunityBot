@@ -1,14 +1,15 @@
 import time
-from datetime import datetime
 from vk_api.vk_api import VkApi
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+from DataClasses.log_type import LogType
+from Services.log_service import LogService
+from Services.messages_service import MessageService
 from Twitch.Twitch import Twitch
 from DataClasses.Broadcast import Broadcast
 from Services.request_service import RequestService
 from Config import private_config
 from Config import api_config
-import messages
 
 
 class Vk:
@@ -76,17 +77,18 @@ class Vk:
                         if event.text.lower() == "привет" \
                                 or event.text.lower() == "start" \
                                 or event.text.lower() == "старт":
-                            answer_message = messages.greeting_message
+                            answer_message = MessageService.get_greeting_message()
                         elif event.text.lower() == "стрим":
                             broadcast: Broadcast = twitch.get_last_broadcast()
-                            answer_message = messages.get_broadcast_status_message(broadcast=broadcast)
+                            answer_message = MessageService.get_broadcast_status_message(broadcast=broadcast)
                         elif event.text.lower() == "график":
-                            answer_message = messages.stream_schedule
+                            answer_message = MessageService.get_schedule_stream_message()
                         else:
-                            answer_message = messages.all_commands_message
+                            answer_message = MessageService.get_all_bot_commands_message()
 
                         self.__send_message(user_id=event.user_id, message=answer_message)
             except Exception as error:
-                print(f"{datetime.now():%d.%m.%Y %H:%M:%S}. {error}")
-                print(f"Waiting {api_config.twitch_waiting_request_seconds} seconds")
+                LogService.log(str(error), log_type=LogType.ERROR)
+                LogService.log(f"Waiting {api_config.twitch_waiting_request_seconds} seconds",
+                               log_type=LogType.INFO)
                 time.sleep(api_config.twitch_waiting_request_seconds)

@@ -1,8 +1,10 @@
 from datetime import datetime
 from Config import private_config
 from Config import api_config
+from DataClasses.log_type import LogType
 from DataClasses.twitch_access_token import TwitchAccessToken
 from DataClasses.Broadcast import Broadcast
+from Services.log_service import LogService
 from Services.request_service import RequestService
 
 
@@ -15,6 +17,7 @@ class Twitch:
         if hasattr(self, "_Twitch__access_token") and datetime.now() < self.__access_token.expires_in:
             return
 
+        LogService.log("Twitch authentication", log_type=LogType.INFO)
         url: str = api_config.twitch_api_auth_url
         body: dict = {
             "client_id": private_config.twitch_client_id,

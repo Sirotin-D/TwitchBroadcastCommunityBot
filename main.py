@@ -1,12 +1,13 @@
 import time
-from datetime import datetime
 from threading import Thread
+from Services.messages_service import MessageService
 from Twitch.Twitch import Twitch
 from Vk.Vk import Vk
 from DataClasses.Broadcast import Broadcast
 from Config import private_config
 from Config import api_config
-import messages
+from DataClasses.log_type import LogType
+from Services.log_service import LogService
 
 
 def query_answer_mode(twitch: Twitch, vk: Vk):
@@ -20,15 +21,15 @@ def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):
         try:
             broadcast: Broadcast = twitch.get_last_broadcast()
             if broadcast.is_live and not is_notified:
-                streamer_message: str = messages.get_newsletter_message_when_broadcast_live(title=broadcast.title,
-                                                                                            category=broadcast.category)
+                streamer_message: str = MessageService.get_message_when_broadcast_is_live(title=broadcast.title,
+                                                                                          category=broadcast.category)
                 vk.send_newsletter(streamer_message)
                 is_notified = True
 
             elif not broadcast.is_live:
                 is_notified = False
         except Exception as error:
-            print(f"{datetime.now():'%d.%m.%Y %H:%M:%S'}. {error}")
+            LogService.log(str(error), log_type=LogType.ERROR)
 
         time.sleep(api_config.twitch_waiting_request_seconds)
 
