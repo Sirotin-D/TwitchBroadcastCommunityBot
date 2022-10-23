@@ -1,9 +1,11 @@
 from datetime import datetime
+from requests import RequestException
 from Config import private_config
 from Config import api_config
 from DataClasses.log_type import LogType
 from DataClasses.twitch_access_token import TwitchAccessToken
 from DataClasses.Broadcast import Broadcast
+from Error.exceptions import TwitchError, AuthError, NoFoundBroadcastError
 from Services.log_service import LogService
 from Services.request_service import RequestService
 
@@ -32,8 +34,10 @@ class Twitch:
             self.__access_token = TwitchAccessToken(token=response["access_token"],
                                                     expires_in=expires_in_date,
                                                     token_type=response["token_type"])
-        except Exception as error:
-            raise Exception(f"Error getting access token: {error}")
+        except (RequestException, KeyError) as error:
+            raise AuthError(f"Error getting access token from response: {error}")
+        except Exception as undefined_error:
+            raise AuthError(f"Undefined error: {undefined_error}")
 
     def get_last_broadcast(self) -> Broadcast:
         try:
@@ -47,18 +51,19 @@ class Twitch:
 
             response: dict = RequestService.get_request(url=url, body=body)
             channel_list: list = response["data"]
-            streamer = dict()
             for channel in channel_list:
                 if channel["broadcaster_login"] == self.__twitch_channel_name:
-                    streamer = channel
-                    break
-            if len(streamer) != 0:
-                current_broadcast = Broadcast(is_live=streamer["is_live"],
-                                              title=streamer["title"],
-                                              category=streamer["game_name"])
-            else:
-                raise Exception("Not found broadcast channel")
-        except Exception as error:
-            raise Exception(f"Error getting last broadcast: {error}")
+                    current_broadcast = channel
+                    return Broadcast(is_live=current_broadcast["is_live"],
+                                     title=current_broadcast["title"],
+                                     category=current_broadcast["game_name"])
 
-        return current_broadcast
+            raise NoFoundBroadcastError("Not found broadcast channel")
+        except (RequestException, KeyError) as error:
+            raise TwitchError(f"Error getting broadcast from response: {error}")
+        except AuthError as auth_error:
+            raise TwitchError(f"Auth error: {auth_error}")
+        except NoFoundBroadcastError as no_found_broadcast_error:
+            raise NoFoundBroadcastError(no_found_broadcast_error)
+        except Exception as undefined_error:
+            raise TwitchError(f"Undefined error: {undefined_error}")
