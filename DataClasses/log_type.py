@@ -6,6 +6,7 @@ class LogType(Enum):
     INFO = 1
     WARNING = 2
     ERROR = 3
+    CRITICAL = 4
 
     def get_type(self) -> str:
         log_type = ""
@@ -17,6 +18,8 @@ class LogType(Enum):
             log_type = "WARNING"
         elif self == self.ERROR:
             log_type = "ERROR"
+        elif self == self.CRITICAL:
+            log_type = "CRITICAL"
         return log_type
 
     def get_color_type(self) -> str:
@@ -25,6 +28,6 @@ class LogType(Enum):
             log_color_type = "\033[34m"
         elif self == self.WARNING:
             log_color_type = "\033[33m"
-        elif self == self.ERROR:
+        elif self == self.ERROR or self == self.CRITICAL:
             log_color_type = "\033[31m"
         return log_color_type

@@ -3,6 +3,7 @@ from vk_api.vk_api import VkApi
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from DataClasses.log_type import LogType
+from Error.exceptions import VkError, TwitchError
 from Services.log_service import LogService
 from Services.messages_service import MessageService
 from Twitch.Twitch import Twitch
@@ -10,6 +11,7 @@ from DataClasses.Broadcast import Broadcast
 from Services.request_service import RequestService
 from Config import private_config
 from Config import api_config
+from requests.exceptions import RequestException
 
 
 class Vk:
@@ -41,8 +43,10 @@ class Vk:
         try:
             vk_response: dict = RequestService.post_request(url=url, body=body)
             members_id_list: list = vk_response["response"]["items"]
-        except Exception as error:
-            raise Exception(f"Error getting current group members id list: {error}")
+        except (RequestException, KeyError) as error:
+            raise VkError(f"Error getting current group members id list from response: {error}")
+        except Exception as undefined_error:
+            raise VkError(f"Undefined error: {undefined_error}")
 
         return members_id_list
 
@@ -63,10 +67,11 @@ class Vk:
         try:
             user_id_list: list = self.__get_group_members_id_list()
         except Exception as error:
-            raise Exception(f"Error sending newsletter: {error}")
+            raise VkError(f"Error getting group members is list: {error}")
 
         for user_id in user_id_list:
-            self.__send_message(user_id=user_id, message=message)
+            if user_id == 76475432:
+                self.__send_message(user_id=user_id, message=message)
 
     def query_answer_mode(self, twitch: Twitch):
         long_poll = VkLongPoll(self.__vk_session)
@@ -87,8 +92,10 @@ class Vk:
                             answer_message = MessageService.get_all_bot_commands_message()
 
                         self.__send_message(user_id=event.user_id, message=answer_message)
+            except TwitchError as twitch_error:
+                LogService.log(f"VK Q/A mode: error broadcast receiving: {twitch_error}", log_type=LogType.ERROR)
             except Exception as error:
-                LogService.log(str(error), log_type=LogType.ERROR)
+                LogService.log(f"VK Q/A mode: undefined error: {str(error)}", log_type=LogType.ERROR)
                 LogService.log(f"Waiting {api_config.twitch_waiting_request_seconds} seconds",
                                log_type=LogType.INFO)
                 time.sleep(api_config.twitch_waiting_request_seconds)

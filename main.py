@@ -1,5 +1,7 @@
+import sys
 import time
 from threading import Thread
+from Error.exceptions import TwitchError, VkError, NoFoundBroadcastError
 from Services.messages_service import MessageService
 from Twitch.Twitch import Twitch
 from Vk.Vk import Vk
@@ -28,9 +30,14 @@ def broadcast_newsletter_mode(twitch: Twitch, vk: Vk):
 
             elif not broadcast.is_live:
                 is_notified = False
-        except Exception as error:
-            LogService.log(str(error), log_type=LogType.ERROR)
 
+        except NoFoundBroadcastError as no_found_broadcast_error:
+            LogService.log(f"Error config: {no_found_broadcast_error}", log_type=LogType.CRITICAL)
+            sys.exit()
+        except TwitchError as twitch_error:
+            LogService.log(f"Newsletter mode: error broadcast receiving: {twitch_error}", log_type=LogType.ERROR)
+        except VkError as vk_error:
+            LogService.log(f"Newsletter mode: vk error: {vk_error}", log_type=LogType.ERROR)
         time.sleep(api_config.twitch_waiting_request_seconds)
 
 
@@ -39,13 +46,8 @@ def main():
     vk = Vk(auth_token=private_config.vk_test_access_token,
             group_id=private_config.vk_test_group_id)
 
-    thread_1 = Thread(target=broadcast_newsletter_mode,
-                      args=(twitch, vk,))
-    thread_2 = Thread(target=query_answer_mode,
-                      args=(twitch, vk,))
-
-    thread_1.start()
-    thread_2.start()
+    Thread(target=broadcast_newsletter_mode, args=(twitch, vk,)).start()
+    Thread(target=query_answer_mode, args=(twitch, vk,)).start()
 
 
 if __name__ == "__main__":
