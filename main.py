@@ -46,13 +46,8 @@ def main():
     vk = Vk(auth_token=private_config.vk_test_access_token,
             group_id=private_config.vk_test_group_id)
 
-    thread_1 = Thread(target=broadcast_newsletter_mode,
-                      args=(twitch, vk,))
-    thread_2 = Thread(target=query_answer_mode,
-                      args=(twitch, vk,))
-
-    thread_1.start()
-    thread_2.start()
+    Thread(target=broadcast_newsletter_mode, args=(twitch, vk,)).start()
+    Thread(target=query_answer_mode, args=(twitch, vk,)).start()
 
 
 if __name__ == "__main__":
