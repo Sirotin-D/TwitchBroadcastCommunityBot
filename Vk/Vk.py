@@ -70,8 +70,7 @@ class Vk:
             raise VkError(f"Error getting group members is list: {error}")
 
         for user_id in user_id_list:
-            if user_id == 76475432:
-                self.__send_message(user_id=user_id, message=message)
+            self.__send_message(user_id=user_id, message=message)
 
     def query_answer_mode(self, twitch: Twitch):
         long_poll = VkLongPoll(self.__vk_session)
